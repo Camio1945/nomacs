@@ -330,8 +330,7 @@ int main(int argc, char *argv[])
                         cw->load(filePath);
                     loading = true;
                 }
-                w->raise();
-                w->activateWindow();
+                nmc::DkSingleInstance::activateWindow(w, true);
             });
         }
     }

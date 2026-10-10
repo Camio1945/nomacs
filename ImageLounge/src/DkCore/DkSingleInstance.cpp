@@ -30,6 +30,11 @@
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QStandardPaths>
+#include <QWidget>
+
+#ifdef Q_OS_WIN
+#include <qt_windows.h>
+#endif
 
 namespace nmc
 {
@@ -51,6 +56,36 @@ QString DkSingleInstance::serverName()
     const QString suffix = QString::fromUtf8(
         QCryptographicHash::hash(user.toUtf8(), QCryptographicHash::Sha1).toHex().left(8));
     return "nomacs-image-lounge-" + suffix;
+}
+
+void DkSingleInstance::activateWindow(QWidget *window, bool maximize)
+{
+#ifdef Q_OS_WIN
+    // Windows denies foreground activation for background processes - the
+    // request is rejected and only the taskbar icon flashes. Attaching our
+    // thread to the foreground thread's input queue grants us permission.
+    HWND hwnd = reinterpret_cast<HWND>(window->winId());
+
+    ShowWindow(hwnd, maximize ? SW_MAXIMIZE : SW_RESTORE); // un-minimize/resize
+
+    const HWND foreWnd = GetForegroundWindow();
+    const DWORD foreThread = GetWindowThreadProcessId(foreWnd, nullptr);
+    const DWORD thisThread = GetCurrentThreadId();
+    const bool attached = foreThread != thisThread && AttachThreadInput(thisThread, foreThread, TRUE);
+
+    SetForegroundWindow(hwnd);
+    SetActiveWindow(hwnd);
+
+    if (attached)
+        AttachThreadInput(thisThread, foreThread, FALSE);
+#else
+    if (maximize)
+        window->showMaximized();
+    else
+        window->setWindowState((window->windowState() & ~Qt::WindowMinimized) | Qt::WindowActive);
+    window->raise();
+    window->activateWindow();
+#endif
 }
 
 bool DkSingleInstance::startServer()

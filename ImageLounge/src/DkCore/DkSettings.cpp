@@ -1014,7 +1014,7 @@ void DkSettings::setToDefaultSettings()
     global_p.checkOpenDuplicates = true;
     global_p.openDirShowFirstImage = false;
     global_p.extendedTabs = false;
-    global_p.multipleInstances = true;
+    global_p.multipleInstances = false;
     global_p.loop = true;
     global_p.scanSubFolders = false;
     global_p.lastSaveDir = QString();
@@ -1070,7 +1070,7 @@ void DkSettings::setToDefaultSettings()
     display_p.histogramScale = 0; // DkHistogramWidget::scale_linear
     display_p.tpPattern = false;
     display_p.showNavigation = true;
-    display_p.themeName = "Light-Theme.css";
+    display_p.themeName = "System.css";
     display_p.stylePlugin = "Default";
     display_p.showBorder = false;
     display_p.displaySquaredThumbs = true;

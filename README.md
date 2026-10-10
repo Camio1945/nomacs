@@ -7,6 +7,52 @@
 
 nomacs is a free, open source image viewer, which supports multiple platforms. You can use it for viewing all common image formats including RAW and psd images. nomacs is licensed under the GNU General Public License v3 and available for Windows, Linux, FreeBSD, Mac, Haiku, and OS/2.
 
+## 本 Fork 的打包指南 (Windows)
+
+本仓库 fork 自 nomacs/nomacs 并加入了自定义功能。在 Windows 上从零到出包的流程如下：
+
+**一次性环境准备**（已在本机完成）：
+
+1. Visual Studio 2022 (MSVC)、Python、git、7-Zip；
+2. Qt 6.10.1 msvc2022_64，安装到 `C:\Qt`（可用 aqtinstall 经镜像下载）：
+   ```console
+   pip install aqtinstall
+   aqt install-qt -O C:\Qt -b https://mirrors.aliyun.com/qt windows desktop 6.10.1 win64_msvc2022_64 --archives qtbase qtsvg qttools qttranslations qt5compat
+   ```
+3. 预编译第三方依赖（exiv2/libraw/opencv/tiff/quazip 等，与官方 CI 同源），解压到 `C:\projects\nomacs\3rd-party`：
+   ```console
+   curl -L -o nomacs-dependencies.7z https://github.com/novomesk/downloads/raw/refs/heads/main/nomacs/nomacs-dependencies-2026-09-04.7z
+   7z x nomacs-dependencies.7z -oC:\projects\nomacs\3rd-party
+   ```
+4. `pip install cmake ninja`（cmake 4.x 可用）。
+
+**每次打包**（增改代码后）：
+
+```console
+:: 1. 配置（首次或 CMakeLists 改动后；可用 docs/git_ignores/build-nomacs.bat）
+cmake -S ImageLounge -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON ^
+  -DCMAKE_PREFIX_PATH="C:\Qt\6.10.1\msvc2022_64;C:\projects\nomacs\3rd-party" ^
+  -DCMAKE_INSTALL_PREFIX=%CD%\installer\nomacs.x64 ^
+  -DOpenCV_DIR="C:\projects\nomacs\3rd-party\lib" -DENABLE_QUAZIP=ON
+
+:: 2. 编译（vcvars64 环境内；可用 docs/git_ignores/compile-nomacs.bat）
+ninja -C build
+
+:: 3. 收集安装树到 installer\nomacs.x64
+cmake --install build
+
+:: 4. 打便携包（zip 会自带空 settings.ini，即 Portable 模式）
+python scripts\make-portable.py
+```
+
+**产物**：`installer\nomacs-portable-win.zip` —— 解压即用，不写注册表、不碰系统 `%APPDATA%` 配置，可与已安装的官方版并存。
+
+**MSI 安装包**（可选）：安装树就绪后，安装 [WiX Toolset v3.14](https://wixtoolset.org/)，运行 `installer\make-msi-setup.bat`。注意：默认产品标识与官方版相同，会覆盖已安装的官方 nomacs；如需并存，先修改 `installer\nomacs-setup.wxs` 中的产品名/升级码。
+
+**改版本号**：`ImageLounge/CMakeLists.txt` 与 `scripts/utils/version.cache` 两处必须同步（否则 cmake 直接报错），`appveyor.yml` 的显示版本一并更新。
+
+> 以下为上游 nomacs 原始说明。
+
 [![Build status](https://ci.appveyor.com/api/projects/status/ye6wd1hap4cebyo8?svg=true)](https://ci.appveyor.com/project/novomesk/nomacs)
 [![Downloads](https://img.shields.io/github/downloads/nomacs/nomacs/total.svg)](https://github.com/nomacs/nomacs/releases/latest)
 [![Crowdin](https://badges.crowdin.net/nomacs-neo/localized.svg)](https://crowdin.com/project/nomacs-neo)

@@ -31,6 +31,7 @@
 #include "nmc_config.h"
 
 class QLocalServer;
+class QWidget;
 
 namespace nmc
 {
@@ -62,6 +63,10 @@ public:
 
     /// @brief unique (per user) socket/pipe name used for the IPC
     static QString serverName();
+
+    /// @brief brings @p window to the foreground, also when Windows denies focus stealing;
+    ///        if @p maximize is true, the window is also maximized
+    static void activateWindow(QWidget *window, bool maximize = false);
 
 signals:
     /// @brief emitted on the running instance when files are requested
