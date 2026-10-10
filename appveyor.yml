@@ -1,4 +1,4 @@
-version: 3.23.5.{build}
+version: 3.23.6.{build}
 image: Visual Studio 2026
 configuration: Release
 skip_commits:

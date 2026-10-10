@@ -976,7 +976,7 @@ void DkSettings::saveHistory()
 void DkSettings::setToDefaultSettings()
 {
     app_p.showToolBar = true;
-    app_p.showStatusBar = false;
+    app_p.showStatusBar = true;
     app_p.showMovieToolBar = false;
     app_p.showFileInfoLabel = QBitArray(mode_end, false);
     app_p.showFilePreview = QBitArray(mode_end, false);
