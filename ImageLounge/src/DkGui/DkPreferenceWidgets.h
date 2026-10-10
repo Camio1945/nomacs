@@ -133,6 +133,7 @@ public slots:
     void onLogRecentFilesToggled(bool checked) const;
     void onCheckOpenDuplicatesToggled(bool checked) const;
     void onExtendedTabsToggled(bool checked) const;
+    void onMultipleInstancesToggled(bool checked) const;
     void onCloseOnEscToggled(bool checked) const;
     void onCloseOnMiddleMouseToggled(bool checked) const;
     void onZoomOnWheelToggled(bool checked) const;

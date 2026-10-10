@@ -53,6 +53,7 @@
 #include "DkProcess.h"
 #include "DkSettings.h"
 #include "DkShortcuts.h"
+#include "DkSingleInstance.h"
 #include "DkThemeManager.h"
 #include "DkTimer.h"
 #include "DkUtils.h"
@@ -229,6 +230,11 @@ int main(int argc, char *argv[])
     if (noUI)
         return 0;
 
+    // single instance mode: open files in the already running instance and exit
+    const bool singleInstance = !nmc::DkSettingsManager::param().global().multipleInstances;
+    if (singleInstance && nmc::DkSingleInstance::activateExisting(parser.positionalArguments()))
+        return 0;
+
     // install translations
     const QString translationName = "nomacs_" + nmc::DkSettingsManager::param().global().language + ".qm";
     const QString translationNameQt = "qt_" + nmc::DkSettingsManager::param().global().language + ".qm";
@@ -307,6 +313,28 @@ int main(int argc, char *argv[])
     qInfo() << "init window: appMode:" << nmc::DkSettingsManager::param().app().currentAppMode
             << "maximized:" << w->isMaximized() << "fullscreen:" << w->isFullScreen() << "geometry:" << w->geometry()
             << "windowState:" << w->windowState();
+
+    // single instance mode: listen for new processes that forward their files
+    if (singleInstance) {
+        auto *instanceServer = new nmc::DkSingleInstance(w);
+        if (instanceServer->startServer()) {
+            QObject::connect(instanceServer, &nmc::DkSingleInstance::filesRequested, w, [w](const QStringList &files) {
+                nmc::DkCentralWidget *cw = w->getTabWidget();
+                bool loading = false;
+                for (const QString &filePath : files) {
+                    if (filePath.isEmpty())
+                        continue;
+                    if (loading)
+                        cw->loadToTab(filePath);
+                    else
+                        cw->load(filePath);
+                    loading = true;
+                }
+                w->raise();
+                w->activateWindow();
+            });
+        }
+    }
 
 #ifdef Q_OS_WIN
     // hide white flash when window first appears

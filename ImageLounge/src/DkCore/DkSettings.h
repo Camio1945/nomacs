@@ -275,6 +275,7 @@ public:
         bool checkOpenDuplicates;
         bool openDirShowFirstImage; // show first image when opening dir, otherwise show thumbs
         bool extendedTabs;
+        bool multipleInstances; // if false, files are opened in the already running instance
         bool askToSaveDeletedFiles;
         QString tmpPath;
         QString language;

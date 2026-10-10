@@ -427,6 +427,7 @@ void DkSettings::load(QSettings &settings, bool defaults)
     global_p.checkOpenDuplicates = settings.value("checkOpenDuplicates", global_p.checkOpenDuplicates).toBool();
     global_p.openDirShowFirstImage = settings.value("openDirShowFirstImage", global_p.openDirShowFirstImage).toBool();
     global_p.extendedTabs = settings.value("extendedTabs", global_p.extendedTabs).toBool();
+    global_p.multipleInstances = settings.value("multipleInstances", global_p.multipleInstances).toBool();
 
     global_p.loop = settings.value("loop", global_p.loop).toBool();
     global_p.scanSubFolders = settings.value("scanRecursive", global_p.scanSubFolders).toBool();
@@ -720,6 +721,8 @@ void DkSettings::save(QSettings &settings, bool force)
         settings.setValue("openDirShowFirstImage", global_p.openDirShowFirstImage);
     if (force || global_p.extendedTabs != global_d.extendedTabs)
         settings.setValue("extendedTabs", global_p.extendedTabs);
+    if (force || global_p.multipleInstances != global_d.multipleInstances)
+        settings.setValue("multipleInstances", global_p.multipleInstances);
     if (force || global_p.loop != global_d.loop)
         settings.setValue("loop", global_p.loop);
     if (force || global_p.scanSubFolders != global_d.scanSubFolders)
@@ -989,7 +992,7 @@ void DkSettings::setToDefaultSettings()
     app_p.showHistoryDock = QBitArray(mode_end, false);
     app_p.showLogDock = QBitArray(mode_end, false);
     app_p.advancedSettings = false;
-    app_p.closeOnEsc = false;
+    app_p.closeOnEsc = true;
     app_p.closeOnMiddleMouse = false;
     app_p.hideAllPanels = false;
     app_p.showRecentFiles = true;
@@ -1011,6 +1014,7 @@ void DkSettings::setToDefaultSettings()
     global_p.checkOpenDuplicates = true;
     global_p.openDirShowFirstImage = false;
     global_p.extendedTabs = false;
+    global_p.multipleInstances = true;
     global_p.loop = true;
     global_p.scanSubFolders = false;
     global_p.lastSaveDir = QString();

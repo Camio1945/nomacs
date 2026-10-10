@@ -481,6 +481,13 @@ void DkGeneralPreference::createLayout()
     cbCheckForUpdates->setDisabled(DkSettingsManager::param().sync().disableUpdateInteraction);
     connect(cbCheckForUpdates, &QCheckBox::toggled, this, &DkGeneralPreference::onCheckForUpdatesToggled);
 
+    auto *cbMultipleInstances = new QCheckBox(tr("Allow Multiple Instances"), this);
+    cbMultipleInstances->setToolTip(
+        tr("If checked, every nomacs launch opens a new window. Otherwise, images are opened in the already "
+           "running nomacs instance."));
+    cbMultipleInstances->setChecked(DkSettingsManager::param().global().multipleInstances);
+    connect(cbMultipleInstances, &QCheckBox::toggled, this, &DkGeneralPreference::onMultipleInstancesToggled);
+
     auto *generalGroup = new DkGroupWidget(tr("General"), this);
     generalGroup->addWidget(cbRecentFiles);
     generalGroup->addWidget(cbLogRecentFiles);
@@ -495,6 +502,7 @@ void DkGeneralPreference::createLayout()
     generalGroup->addWidget(cbCloseOnEsc);
     generalGroup->addWidget(cbCloseOnMiddleMouse);
     generalGroup->addWidget(cbCheckForUpdates);
+    generalGroup->addWidget(cbMultipleInstances);
     generalGroup->addWidget(cbShowBgImage);
     generalGroup->addWidget(cbEnableAnimation);
 
@@ -564,6 +572,14 @@ void DkGeneralPreference::onExtendedTabsToggled(bool checked) const
 {
     if (DkSettingsManager::param().global().extendedTabs != checked) {
         DkSettingsManager::param().global().extendedTabs = checked;
+        showRestartLabel();
+    }
+}
+
+void DkGeneralPreference::onMultipleInstancesToggled(bool checked) const
+{
+    if (DkSettingsManager::param().global().multipleInstances != checked) {
+        DkSettingsManager::param().global().multipleInstances = checked;
         showRestartLabel();
     }
 }
